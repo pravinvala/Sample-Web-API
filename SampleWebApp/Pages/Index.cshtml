@@ -1,0 +1,89 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="container">
+    <div class="row justify-content-md-center">
+        <div class="col col-lg-12 form-group text-center">
+            <label class="h3 "><b>Reverse Data Using Web API</b></label>
+            <hr />
+        </div>
+        <div class="col col-lg-3 form-group">
+            <label for="" class="fw-500">Full Name</label>
+            <input type="text" placeholder="Full Name" class="form-control form-control-sm" name="FullName" id="FullName">
+        </div>
+        <div class="col col-lg-3 form-group">
+            <label for="" class="fw-500">Email</label>
+            <input type="text" placeholder="address@example.com" class="form-control form-control-sm" name="Email" id="Email">
+        </div>
+        <div class="col col-lg-3 form-group">
+            <label for="" class="fw-500">Phone</label>
+            <input type="text" placeholder="xxx-xxx-xxxx" class="form-control form-control-sm" name="Phone" maxlength="12" id="Phone" onkeypress = "return isNumberWithDecimalKey(event)">
+        </div>
+        <div class="col col-lg-3 form-group">
+            <label for="" class="fw-500">Notes</label>
+            <input type="text" class="form-control form-control-sm" name="Notes" id="Notes">
+        </div>
+        <div class="col col-lg-6 form-group" id="result">
+        </div>
+        <div class="col col-lg-6 form-group">
+            <label></label>
+            <button type="button" class="btn btn-primary pull-right" id="btnReverse">Reverse Data</button>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+
+
+        $("#btnReverse").on("click", function () {
+            $("#result").html("");
+            if ($("#FullName").val() == "") {
+                alert("Please Enter Full Name");
+                return
+            }
+            if ($("#Email").val() == "") {
+                alert("Please Enter Email");
+                return
+            }
+            if (!validateEmail($("#Email").val())) {
+                alert("Please Enter Valid Email");
+                return
+            }
+
+            if ($("#Phone").val() != "" && !validatePhone($("#Phone").val())) {
+                alert("Please Enter Phone in xxx-xxx-xxxx Format");
+                return
+            }
+
+            else {
+                var InputData = {
+                    "FullName": $("#FullName").val(),
+                    "Email": $("#Email").val(),
+                    "Phone": $("#Phone").val(),
+                    "Notes": $("#Notes").val(),
+                }
+                $.ajax({
+                    url: 'http://localhost:50071/api/values/ProcessData',
+                    type: 'POST',
+                    data: InputData,
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            console.log(result.result);
+                            var output = '<label>Name : ' + result.result.fullName + '</label><br>';
+                            output += '<label>Email : ' + result.result.email + '</label><br>';
+                            output += '<label>Phone : ' + result.result.phone + '</label><br>';
+                            output += '<label>Notes : ' + result.result.notes + '</label><br>';
+                            $("#result").append(output);
+                            $('input[type=text]').val('');
+                        } else {
+                            alert(result.message);
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}
